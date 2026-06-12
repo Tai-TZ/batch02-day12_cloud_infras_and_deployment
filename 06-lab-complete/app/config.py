@@ -29,10 +29,13 @@ class Settings:
 
     # Rate limiting
     rate_limit_per_minute: int = field(
-        default_factory=lambda: int(os.getenv("RATE_LIMIT_PER_MINUTE", "20"))
+        default_factory=lambda: int(os.getenv("RATE_LIMIT_PER_MINUTE", "10"))
     )
 
-    # Budget
+    # Budget — monthly per user (CODE_LAB: $10/month)
+    monthly_budget_usd: float = field(
+        default_factory=lambda: float(os.getenv("MONTHLY_BUDGET_USD", "10.0"))
+    )
     daily_budget_usd: float = field(
         default_factory=lambda: float(os.getenv("DAILY_BUDGET_USD", "5.0"))
     )
