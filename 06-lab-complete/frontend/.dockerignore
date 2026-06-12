@@ -1,0 +1,10 @@
+node_modules
+dist
+.output
+.vinxi
+.tanstack
+.nitro
+*.local
+.git
+.vscode
+.idea
