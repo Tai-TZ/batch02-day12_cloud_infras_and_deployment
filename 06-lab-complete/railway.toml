@@ -2,7 +2,6 @@
 builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1"
 healthcheckPath = "/health"
 healthcheckTimeout = 90
 restartPolicyType = "ON_FAILURE"
