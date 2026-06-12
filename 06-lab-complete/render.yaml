@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: ai-agent-production
+    name: arionear-rag-agent
     runtime: docker
     region: singapore
     plan: starter
@@ -9,15 +9,25 @@ services:
     envVars:
       - key: ENVIRONMENT
         value: production
+      - key: APP_NAME
+        value: Arionear RAG Agent
       - key: APP_VERSION
         value: "1.0.0"
+      - key: OPENROUTER_API_KEY
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: OPENAI_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: LLM_MODEL
+        value: openai/gpt-4o-mini
       - key: AGENT_API_KEY
         generateValue: true
       - key: JWT_SECRET
         generateValue: true
-      - key: DAILY_BUDGET_USD
-        value: "5.0"
+      - key: MONTHLY_BUDGET_USD
+        value: "10.0"
       - key: RATE_LIMIT_PER_MINUTE
-        value: "20"
+        value: "10"
+      - key: REDIS_URL
+        sync: false

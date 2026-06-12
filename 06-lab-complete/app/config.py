@@ -13,12 +13,16 @@ class Settings:
     debug: bool = field(default_factory=lambda: os.getenv("DEBUG", "false").lower() == "true")
 
     # App
-    app_name: str = field(default_factory=lambda: os.getenv("APP_NAME", "Production AI Agent"))
+    app_name: str = field(default_factory=lambda: os.getenv("APP_NAME", "Arionear RAG Agent"))
     app_version: str = field(default_factory=lambda: os.getenv("APP_VERSION", "1.0.0"))
 
-    # LLM
+    # LLM (OpenRouter / OpenAI-compatible)
     openai_api_key: str = field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
-    llm_model: str = field(default_factory=lambda: os.getenv("LLM_MODEL", "gpt-4o-mini"))
+    openrouter_api_key: str = field(default_factory=lambda: os.getenv("OPENROUTER_API_KEY", ""))
+    openai_base_url: str = field(
+        default_factory=lambda: os.getenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1")
+    )
+    llm_model: str = field(default_factory=lambda: os.getenv("LLM_MODEL", "openai/gpt-4o-mini"))
 
     # Security
     agent_api_key: str = field(default_factory=lambda: os.getenv("AGENT_API_KEY", "dev-key-change-me"))
@@ -50,8 +54,10 @@ class Settings:
                 raise ValueError("AGENT_API_KEY must be set in production!")
             if self.jwt_secret == "dev-jwt-secret":
                 raise ValueError("JWT_SECRET must be set in production!")
-        if not self.openai_api_key:
-            logger.warning("OPENAI_API_KEY not set — using mock LLM")
+        if not (self.openrouter_api_key or self.openai_api_key):
+            logger.warning("OPENROUTER_API_KEY / OPENAI_API_KEY not set — LLM calls will fail")
+        if not self.redis_url:
+            logger.warning("REDIS_URL not set — sessions/rate-limit/cost-guard degraded")
         return self
 
 

@@ -9,6 +9,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - RATE_LIMIT_PER_MINUTE=10
       - MONTHLY_BUDGET_USD=10.0
+      - PYTHONPATH=/app
     env_file:
       - .env.local
     depends_on:
@@ -19,8 +20,8 @@ services:
              "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 90s
     restart: unless-stopped
     networks:
       - lab_net
