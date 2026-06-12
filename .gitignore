@@ -31,6 +31,8 @@ env/
 .DS_Store
 Thumbs.db
 
-# ── Docker volumes (local dev) ─────────────────────��──────
+# ── Docker volumes (local dev) ───────────────────────
 data/
+!06-lab-complete/data/
+!06-lab-complete/data/**
 volumes/
