@@ -29,6 +29,11 @@ def ensure_local_index() -> list[dict]:
     if cached:
         return cached
 
+    from src.cloud_mode import skip_local_embeddings
+
+    if skip_local_embeddings():
+        return []
+
     from src.task4_chunking_indexing import (
         chunk_documents,
         embed_chunks,

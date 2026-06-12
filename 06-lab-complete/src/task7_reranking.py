@@ -125,6 +125,12 @@ def rerank(
     method: str = "cross_encoder",
 ) -> list[dict]:
     """Unified reranking interface."""
+    from src.cloud_mode import skip_local_embeddings
+
+    if skip_local_embeddings():
+        ranked = sorted(candidates, key=lambda c: float(c.get("score", 0)), reverse=True)
+        return ranked[:top_k]
+
     if method == "cross_encoder":
         return rerank_cross_encoder(query, candidates, top_k)
     if method == "mmr":

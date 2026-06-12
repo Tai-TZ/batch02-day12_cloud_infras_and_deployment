@@ -52,6 +52,11 @@ def semantic_search(query: str, top_k: int = 10) -> list[dict]:
         }
         Sorted by score descending.
     """
+    from src.cloud_mode import skip_local_embeddings
+
+    if skip_local_embeddings():
+        return []
+
     if not query.strip() or top_k <= 0:
         return []
 

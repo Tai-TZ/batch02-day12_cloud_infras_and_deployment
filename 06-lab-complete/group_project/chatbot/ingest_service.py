@@ -53,6 +53,13 @@ def _convert_to_markdown(source_path: Path) -> tuple[Path | None, str | None]:
 
 def _rebuild_index() -> int:
     """Rebuild toàn bộ local index từ standardized/."""
+    from src.cloud_mode import skip_local_embeddings
+
+    if skip_local_embeddings():
+        raise RuntimeError(
+            "Upload/re-index tắt trên cloud deploy (BM25-only). Chạy local để rebuild index."
+        )
+
     from src.task4_chunking_indexing import (
         chunk_documents,
         embed_chunks,

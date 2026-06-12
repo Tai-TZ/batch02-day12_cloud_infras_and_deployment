@@ -1,8 +1,4 @@
-# ============================================================
-# Arionear RAG Agent — slim cloud image (~300 MB, no CUDA)
-# BM25 retrieval + OpenRouter LLM (SKIP_LOCAL_EMBEDDINGS=true)
-# ============================================================
-
+# Local dev — full hybrid retrieval (semantic + BM25 + upload)
 FROM python:3.11-slim AS builder
 
 WORKDIR /build
@@ -10,8 +6,9 @@ WORKDIR /build
 RUN apt-get update && apt-get install -y --no-install-recommends gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+COPY requirements-local.txt .
+RUN pip install --no-cache-dir --user -r requirements-local.txt \
+    && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
 
 
 FROM python:3.11-slim AS runtime
@@ -21,6 +18,7 @@ RUN groupadd -r agent && useradd -r -g agent -d /app agent
 WORKDIR /app
 
 COPY --from=builder /root/.local /app/.local
+COPY --from=builder /root/.cache /app/.cache
 
 COPY app/ ./app/
 COPY src/ ./src/
@@ -36,11 +34,12 @@ ENV PATH=/app/.local/bin:$PATH
 ENV PYTHONPATH=/app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV SKIP_LOCAL_EMBEDDINGS=true
+ENV HF_HOME=/app/.cache/huggingface
+ENV SKIP_LOCAL_EMBEDDINGS=false
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD python -c \
     "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" \
     || exit 1

@@ -3,7 +3,9 @@
 
 services:
   agent:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.local
     environment:
       - ENVIRONMENT=staging
       - REDIS_URL=redis://redis:6379/0

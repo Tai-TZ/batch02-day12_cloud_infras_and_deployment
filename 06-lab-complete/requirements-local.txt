@@ -1,0 +1,5 @@
+# Local dev — full hybrid retrieval (semantic + BM25)
+-r requirements.txt
+sentence-transformers>=2.2.0
+markitdown>=0.1.0
+weaviate-client>=4.5.0

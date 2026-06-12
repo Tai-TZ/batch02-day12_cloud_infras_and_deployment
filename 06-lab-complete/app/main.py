@@ -86,14 +86,20 @@ def _history_for_rag(session_id: str) -> list[dict]:
 
 
 def _warmup_rag() -> None:
-    """Pre-load embedding model + index để request đầu nhanh hơn."""
+    """Pre-load index (cloud: BM25 only, no local embedding model)."""
     try:
+        from src.cloud_mode import skip_local_embeddings
         from src.local_index import ensure_local_index
-        from src.task4_chunking_indexing import _get_embedding_model
 
         ensure_local_index()
-        _get_embedding_model()
-        logger.info(json.dumps({"event": "rag_warmup", "status": "ok"}))
+        if not skip_local_embeddings():
+            from src.task4_chunking_indexing import _get_embedding_model
+            _get_embedding_model()
+        logger.info(json.dumps({
+            "event": "rag_warmup",
+            "status": "ok",
+            "mode": "bm25_only" if skip_local_embeddings() else "hybrid",
+        }))
     except Exception as exc:
         logger.warning(json.dumps({"event": "rag_warmup", "status": "failed", "error": str(exc)}))
 

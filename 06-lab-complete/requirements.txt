@@ -1,4 +1,4 @@
-# Production dependencies — Arionear RAG Agent (Part 6)
+# Production — cloud deploy (no PyTorch / sentence-transformers)
 fastapi==0.115.0
 uvicorn[standard]==0.30.0
 pydantic==2.9.0
@@ -6,11 +6,8 @@ python-dotenv==1.0.1
 redis==5.1.0
 python-multipart==0.0.9
 
-# RAG pipeline runtime
+# RAG runtime (BM25 + OpenRouter LLM)
 openai>=1.30.0
 numpy>=1.26.0
 rank-bm25>=0.2.2
 langchain-text-splitters>=0.2.0
-sentence-transformers>=2.2.0
-markitdown>=0.1.0
-weaviate-client>=4.5.0
