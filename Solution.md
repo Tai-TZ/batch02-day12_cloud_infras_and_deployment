@@ -1452,13 +1452,14 @@ docker compose down
 | 4    | Auth, rate limit, cost guard            |
 | 5    | **Scale 3 instances + Redis stateless** |
 
+
 **Tiếp theo:** Part 6 — Final Project (xem bên dưới).
 
 ---
 
 # Part 6 — Mission Answers: Final Project (Arionear RAG Agent)
 
-> **Nhóm Arionear:** Nguyễn Trọng Nguyên, Nguyễn Thành Tài, Ngô Thị Ánh, Nguyễn Hồ Diệu Linh  
+> **Nhóm Arionear:** Nguyễn Thành Tài  
 > **Thư mục:** `06-lab-complete/`  
 > **Public URL:** [https://practical-fulfillment-production-a4cc.up.railway.app/](https://practical-fulfillment-production-a4cc.up.railway.app/)
 
@@ -1468,13 +1469,15 @@ docker compose down
 
 Part 6 gộp toàn bộ concepts Part 1–5 vào một **production-ready RAG chatbot** — hỏi đáp pháp luật ma túy kèm citation từ knowledge base đã index.
 
-| Layer | Công nghệ | Vai trò |
-| ----- | --------- | ------- |
-| **Backend** | FastAPI + uvicorn | REST API, RAG, auth, rate limit, cost guard |
-| **State** | Redis | Session history, rate limit, budget tracking |
-| **Local LB** | Nginx + Docker Compose | Scale 3 agent instances |
-| **Frontend** | TanStack Start (React) | UI chat + Knowledge Base panel |
-| **Cloud** | Railway | Public URL (frontend service) |
+
+| Layer        | Công nghệ              | Vai trò                                      |
+| ------------ | ---------------------- | -------------------------------------------- |
+| **Backend**  | FastAPI + uvicorn      | REST API, RAG, auth, rate limit, cost guard  |
+| **State**    | Redis                  | Session history, rate limit, budget tracking |
+| **Local LB** | Nginx + Docker Compose | Scale 3 agent instances                      |
+| **Frontend** | TanStack Start (React) | UI chat + Knowledge Base panel               |
+| **Cloud**    | Railway                | Public URL (frontend service)                |
+
 
 ---
 
@@ -1523,29 +1526,31 @@ User → Frontend (practical-fulfillment-production-a4cc.up.railway.app)
 ### Functional
 
 
-| Yêu cầu | File / Endpoint | Trạng thái |
-| ------- | --------------- | ---------- |
-| Agent trả lời qua REST API | `POST /ask`, `POST /api/chat` | ✅ Code |
-| Conversation history | Redis key `history:{session_id}`, TTL 1h | ✅ Code |
-| Streaming responses | — | ➖ Optional (chưa implement) |
+| Yêu cầu                    | File / Endpoint                          | Trạng thái                  |
+| -------------------------- | ---------------------------------------- | --------------------------- |
+| Agent trả lời qua REST API | `POST /ask`, `POST /api/chat`            | ✅ Code                      |
+| Conversation history       | Redis key `history:{session_id}`, TTL 1h | ✅ Code                      |
+| Streaming responses        | —                                        | ➖ Optional (chưa implement) |
+
 
 ### Non-functional
 
 
-| Yêu cầu | Implementation | Trạng thái |
-| ------- | -------------- | ---------- |
-| Docker multi-stage | `Dockerfile` — builder + runtime, non-root `agent` | ✅ |
-| Config từ env | `app/config.py` — 12-factor settings | ✅ |
-| API key auth | `app/auth.py` — header `X-API-Key` → 401 | ✅ |
-| Rate limit 10 req/min | `app/rate_limiter.py` — Redis sliding window → 429 | ✅ |
-| Cost guard $10/tháng | `app/cost_guard.py` — Redis `budget:{user}:{YYYY-MM}` → 402 | ✅ |
-| Health check | `GET /health` — liveness + KB stats | ✅ |
-| Readiness | `GET /ready` — 503 nếu chưa warmup / Redis down | ✅ |
-| Graceful shutdown | `lifespan` + SIGTERM handler + `timeout_graceful_shutdown=30` | ✅ |
-| Stateless design | History/rate/budget trong Redis, không in-memory | ✅ |
-| Structured JSON logging | `logger.info(json.dumps({"event": ...}))` | ✅ |
-| Deploy Railway | Frontend live tại public URL | ✅ |
-| Public URL hoạt động | UI chatbot load được | ✅ |
+| Yêu cầu                 | Implementation                                                | Trạng thái |
+| ----------------------- | ------------------------------------------------------------- | ---------- |
+| Docker multi-stage      | `Dockerfile` — builder + runtime, non-root `agent`            | ✅          |
+| Config từ env           | `app/config.py` — 12-factor settings                          | ✅          |
+| API key auth            | `app/auth.py` — header `X-API-Key` → 401                      | ✅          |
+| Rate limit 10 req/min   | `app/rate_limiter.py` — Redis sliding window → 429            | ✅          |
+| Cost guard $10/tháng    | `app/cost_guard.py` — Redis `budget:{user}:{YYYY-MM}` → 402   | ✅          |
+| Health check            | `GET /health` — liveness + KB stats                           | ✅          |
+| Readiness               | `GET /ready` — 503 nếu chưa warmup / Redis down               | ✅          |
+| Graceful shutdown       | `lifespan` + SIGTERM handler + `timeout_graceful_shutdown=30` | ✅          |
+| Stateless design        | History/rate/budget trong Redis, không in-memory              | ✅          |
+| Structured JSON logging | `logger.info(json.dumps({"event": ...}))`                     | ✅          |
+| Deploy Railway          | Frontend live tại public URL                                  | ✅          |
+| Public URL hoạt động    | UI chatbot load được                                          | ✅          |
+
 
 ---
 
@@ -1587,13 +1592,14 @@ docker compose up --build --scale agent=3
 ### Kết quả test qua Nginx (:80)
 
 
-| Endpoint | Auth | HTTP | Mô tả |
-| -------- | ---- | ---- | ----- |
-| `GET /health` | No | 200 | `status`, `redis_connected`, `knowledge_base_chunks` |
-| `GET /ready` | No | 200 | `ready: true`, `instance` |
-| `POST /ask` | `X-API-Key` | 200 | RAG answer + `sources` + `session_id` |
-| `POST /ask` (no key) | — | **401** | Invalid/missing API key |
-| `GET /chat/{id}/history` | Yes | 200 | Messages từ Redis |
+| Endpoint                 | Auth        | HTTP    | Mô tả                                                |
+| ------------------------ | ----------- | ------- | ---------------------------------------------------- |
+| `GET /health`            | No          | 200     | `status`, `redis_connected`, `knowledge_base_chunks` |
+| `GET /ready`             | No          | 200     | `ready: true`, `instance`                            |
+| `POST /ask`              | `X-API-Key` | 200     | RAG answer + `sources` + `session_id`                |
+| `POST /ask` (no key)     | —           | **401** | Invalid/missing API key                              |
+| `GET /chat/{id}/history` | Yes         | 200     | Messages từ Redis                                    |
+
 
 ```powershell
 curl.exe http://localhost/health
@@ -1649,22 +1655,24 @@ railway domain
 ### Thông tin deploy
 
 
-| Mục | Giá trị |
-| --- | ------- |
-| Platform | Railway (Dockerfile builder) |
-| **Public URL (UI)** | [https://practical-fulfillment-production-a4cc.up.railway.app/](https://practical-fulfillment-production-a4cc.up.railway.app/) |
-| App | Arionear · RAG Pháp luật Ma túy |
-| Frontend healthcheck | `/` (200) |
-| Backend healthcheck | `/health` (trong `railway.toml`) |
+| Mục                  | Giá trị                                                                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Platform             | Railway (Dockerfile builder)                                                                                                   |
+| **Public URL (UI)**  | [https://practical-fulfillment-production-a4cc.up.railway.app/](https://practical-fulfillment-production-a4cc.up.railway.app/) |
+| App                  | Arionear · RAG Pháp luật Ma túy                                                                                                |
+| Frontend healthcheck | `/` (200)                                                                                                                      |
+| Backend healthcheck  | `/health` (trong `railway.toml`)                                                                                               |
+
 
 ### Kết quả test public URL
 
 
-| Test | HTTP | Ghi chú |
-| ---- | ---- | ------- |
-| `GET /` | **200** | UI chatbot load — sidebar, prompt box, Knowledge Base panel |
-| `GET /health` trên frontend domain | 404 | Frontend SPA — endpoint này thuộc **backend service** |
-| Knowledge Base panel | — | Hiển thị "Đang tải..." nếu chưa nối `VITE_RAG_API_URL` → backend |
+| Test                               | HTTP    | Ghi chú                                                          |
+| ---------------------------------- | ------- | ---------------------------------------------------------------- |
+| `GET /`                            | **200** | UI chatbot load — sidebar, prompt box, Knowledge Base panel      |
+| `GET /health` trên frontend domain | 404     | Frontend SPA — endpoint này thuộc **backend service**            |
+| Knowledge Base panel               | —       | Hiển thị "Đang tải..." nếu chưa nối `VITE_RAG_API_URL` → backend |
+
 
 **Demo queries (sau khi nối backend):**
 
@@ -1689,27 +1697,28 @@ Script kiểm tra: Dockerfile multi-stage, `.dockerignore`, `/health`/`/ready` t
 ## Mapping concepts Part 1 → 6
 
 
-| Part | Áp dụng trong Arionear |
-| ---- | ---------------------- |
-| 1 | `config.py`, `/health`, `/ready`, JSON logging, `0.0.0.0` + `PORT` |
-| 2 | Multi-stage Dockerfile, docker-compose, nginx LB |
-| 3 | Railway deploy, env vars, public URL |
-| 4 | `auth.py`, `rate_limiter.py`, `cost_guard.py` |
-| 5 | Redis stateless sessions, graceful shutdown, scale ×3 local |
-| 6 | **RAG agent thật** + frontend UI + gộp toàn bộ stack |
+| Part | Áp dụng trong Arionear                                             |
+| ---- | ------------------------------------------------------------------ |
+| 1    | `config.py`, `/health`, `/ready`, JSON logging, `0.0.0.0` + `PORT` |
+| 2    | Multi-stage Dockerfile, docker-compose, nginx LB                   |
+| 3    | Railway deploy, env vars, public URL                               |
+| 4    | `auth.py`, `rate_limiter.py`, `cost_guard.py`                      |
+| 5    | Redis stateless sessions, graceful shutdown, scale ×3 local        |
+| 6    | **RAG agent thật** + frontend UI + gộp toàn bộ stack               |
+
 
 ---
 
 ## Checkpoint 6 ✅
 
-- [x] Agent trả lời câu hỏi qua REST API (`/ask`, `/api/chat`)
-- [x] Conversation history trong Redis
-- [x] Docker multi-stage + docker-compose (agent ×3 + redis + nginx)
-- [x] API key auth, rate limit, cost guard
-- [x] Health + readiness + graceful shutdown + stateless
-- [x] Structured JSON logging
-- [x] Deploy Railway — [public URL](https://practical-fulfillment-production-a4cc.up.railway.app/)
-- [ ] Streaming responses *(optional — chưa làm)*
+- Agent trả lời câu hỏi qua REST API (`/ask`, `/api/chat`)
+- Conversation history trong Redis
+- Docker multi-stage + docker-compose (agent ×3 + redis + nginx)
+- API key auth, rate limit, cost guard
+- Health + readiness + graceful shutdown + stateless
+- Structured JSON logging
+- Deploy Railway — [public URL](https://practical-fulfillment-production-a4cc.up.railway.app/)
+- Streaming responses *(optional — chưa làm)*
 
 ---
 
@@ -1743,13 +1752,14 @@ curl.exe -X POST https://<backend-url>/ask `
 ## Tóm tắt Part 1 → 6 (hoàn thành lab)
 
 
-| Part | Concept |
-| ---- | ------- |
-| 1 | Config, health, graceful shutdown |
-| 2 | Docker, multi-stage, compose |
-| 3 | Cloud deploy (Railway) |
-| 4 | Auth, rate limit, cost guard |
-| 5 | Scale 3 instances + Redis stateless |
-| 6 | **Arionear RAG — production agent + UI + [Railway URL](https://practical-fulfillment-production-a4cc.up.railway.app/)** |
+| Part | Concept                                                                                                                 |
+| ---- | ----------------------------------------------------------------------------------------------------------------------- |
+| 1    | Config, health, graceful shutdown                                                                                       |
+| 2    | Docker, multi-stage, compose                                                                                            |
+| 3    | Cloud deploy (Railway)                                                                                                  |
+| 4    | Auth, rate limit, cost guard                                                                                            |
+| 5    | Scale 3 instances + Redis stateless                                                                                     |
+| 6    | **Arionear RAG — production agent + UI + [Railway URL*](https://practical-fulfillment-production-a4cc.up.railway.app/)* |
+
 
 **Day 12 Code Lab — hoàn thành.**
